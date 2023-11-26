@@ -1,0 +1,71 @@
+button {
+  border: 1px solid rgba(27, 31, 35, .15);
+  border-radius: 3px;
+  box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  line-height: 20px;
+  margin: auto;
+  padding: 6px 16px;
+  position: relative;
+  text-align: center;
+  text-shadow: 1px 1px 2px grey;
+  width: 100%;
+}
+
+/* Styles for green buttons */
+.green {
+  background-color: #49cc2f;
+}
+
+.green:hover, .green:active {
+  background-color: #38b320;
+}
+
+.green:active:hover {
+  background-color: #36ab1f;
+  box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+}
+
+/* Styles for blue buttons */
+.blue {
+  background-color: #03a1fc;
+}
+
+.blue:hover, .blue:active {
+  background-color: #008dcf;
+}
+
+.blue:active:hover {
+  background-color: #0081bd;
+  box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+}
+
+/* Styles for red buttons */
+.red {
+  background-color: #de1010;
+}
+
+.red:hover, .red:active {
+  background-color: #cc0a0a;
+}
+
+.red:active:hover {
+  background-color: #ba0606;
+  box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+}
+
+/* Styles for button sizes */
+.medium {
+  font-size: 25px;
+  height: 45px;
+}
+
+.small {
+  font-size: 15px;
+  height: 32px;
+}

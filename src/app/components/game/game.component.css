@@ -1,0 +1,16 @@
+.row {
+  text-align: center;
+}
+
+h3, .info-message {
+  text-align: center;
+  color: aquamarine;
+}
+
+.visible {
+  visibility: visible;
+}
+
+.invisible {
+  visibility: hidden;
+}

@@ -1,0 +1,11 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Background style courtesy of https://superdesigner.co/tools/css-backgrounds */
+html {
+  background: linear-gradient(45deg, #4f46e4 10%,transparent 11%, transparent 89%, #4f46e4 90%),linear-gradient(135deg, #4f46e4 10%,transparent 11%, transparent 89%, #4f46e4 90%),radial-gradient(circle, transparent 25%, #233541 26%),linear-gradient(0deg, transparent 44%, #4f46e4 45%, #4f46e4 55%, transparent 56%), linear-gradient(90deg, transparent 44%, #4f46e4 45%, #4f46e4 55%, transparent 56%);
+  background-size: 4em 4em;
+  background-color: #233541;
+  opacity: 1;
+
+  font-family: 'Nunito', Helvetica, sans-serif;
+}

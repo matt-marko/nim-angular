@@ -1,0 +1,26 @@
+<app-board>
+  <h2 *ngIf="isLoading">Loading...</h2>
+  <h2 *ngIf="errorHasOccurred">There has been an error! Please try again later.</h2>
+
+  <div *ngIf="!isLoading && !errorHasOccurred">
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let highScore of highScores">
+          <td>{{ highScore.name }}</td>
+          <td>{{ highScore.score }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 *ngIf="highScores.length === 0 && !errorHasOccurred">There are no high-scores!</h2>
+  </div>
+
+  <app-button routerLink="" buttonText="Back" buttonColour="blue"></app-button>
+</app-board>

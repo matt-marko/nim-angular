@@ -1,0 +1,70 @@
+<app-board>
+  <h2 class="info-message turn-message" *ngIf="!gameEnded">{{ calculateTurnMessage(turn, numPlayers) }}</h2>
+  <h2 class="info-message winner-message" *ngIf="gameEnded">{{ calculateWinnerMessage(turn, numPlayers) }}</h2>
+  <h3 class="warning" [ngClass]="moveIsInvalid ? 'visible' : 'invisible'">
+    You can't remove all matches at once!
+  </h3>
+
+  <div *ngIf="gameEnded && turn === Turn.computer">
+
+    <h3 class="score-message">{{ calculateScoreMessage() }}</h3>
+
+    <div *ngIf="showHighScoreButtons">
+      <app-button (click)="handleSavingHighScore()"
+                  buttonText="Yes please!"
+                  buttonColour="green">
+      </app-button>
+      <app-button (click)="handleNotSavingHighScore()"
+                  buttonText="No thanks"
+                  buttonColour="red">
+      </app-button> 
+    </div>
+     
+  </div>
+
+  <div class="row row1">
+    <app-match *ngFor="let match of matches[0]"
+               [match]="match"
+               (click)="onMatchClick(match)"
+               (mouseover)="handleMatchHover(match, true)"
+               (mouseleave)="handleMatchHover(match, false)">
+    </app-match>
+  </div>
+
+  <div class="row row2">
+    <app-match *ngFor="let match of matches[1]"
+               [match]="match"
+               (click)="onMatchClick(match)"
+               (mouseover)="handleMatchHover(match, true)"
+               (mouseleave)="handleMatchHover(match, false)">
+    </app-match>
+  </div>
+
+  <div class="row row3">
+    <app-match *ngFor="let match of matches[2]"
+               [match]="match"
+               (click)="onMatchClick(match)"
+               (mouseover)="handleMatchHover(match, true)"
+               (mouseleave)="handleMatchHover(match, false)">
+    </app-match>
+  </div>
+
+  <div class="row row4">
+    <app-match *ngFor="let match of matches[3]"
+               [match]="match"
+               (click)="onMatchClick(match)"
+               (mouseover)="handleMatchHover(match, true)"
+               (mouseleave)="handleMatchHover(match, false)">
+    </app-match>
+  </div>
+
+  <app-button (click)="handleResetGame()"
+              [buttonText]="gameEnded ? 'Play again!' : 'Restart'"
+              buttonColour="blue">
+  </app-button>
+  <app-button (click)="handleResetGame()"
+              routerLink=""
+              buttonText="Quit"
+              buttonColour="red">
+  </app-button>
+</app-board>

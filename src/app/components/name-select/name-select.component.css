@@ -1,0 +1,43 @@
+h2 {
+  color: aquamarine;
+  margin-top: 0;
+  text-align: center;
+}
+
+label {
+  color: aquamarine;
+  font-size: 1em;
+}
+
+input {
+  font: inherit;
+  font-weight: 700;
+  background-color: white;
+  border: 1px solid;
+  border-color: #707070;
+  border-radius: 3px;
+  height: 34px;
+  padding: 3px 0px 3px 3px;
+  margin: 5px 1px 3px 0px;
+  outline: none;
+  transition: all 0.10s ease-in-out;
+}
+
+input:focus {
+  box-shadow: 0 0 5px #51cbee;
+  border: 1px solid #51cbee;
+}
+
+p {
+  color: #3d0000;
+  display: inline;
+}
+
+.form-label-container {
+  margin-bottom: 10px;
+}
+
+.invalid-input {
+  border-color: red;
+  box-shadow: 0 0 5px #c80000;
+}
