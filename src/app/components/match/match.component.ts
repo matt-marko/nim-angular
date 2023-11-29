@@ -7,7 +7,7 @@ import { Match } from '../../match';
   styleUrls: ['./match.component.css']
 })
 export class MatchComponent {
-  imagePath: string = 'assets/newmatch.png';
+  imagePath: string = 'assets/match.png';
 
   @Input() match: Match = {
     isActive: true,
