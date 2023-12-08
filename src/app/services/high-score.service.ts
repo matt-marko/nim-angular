@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HighScore } from '../high-score';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
+
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HighScoreService {
-  highScoresUrl: string = 'http://localhost:8080/high-scores';
+  highScoresUrl: string = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
