@@ -4,8 +4,6 @@ import { NameSelectComponent } from './name-select.component';
 import { BoardComponent } from '../board/board.component';
 import { ButtonComponent } from '../button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { NameSelectHeaderPipe } from '../../pipes/name-select-header.pipe';
-import { PlayerOneNameLabelPipe } from '../../pipes/player-one-name-label.pipe';
 
 describe('NameSelectComponent', () => {
   let component: NameSelectComponent;
@@ -18,8 +16,6 @@ describe('NameSelectComponent', () => {
           NameSelectComponent,
           BoardComponent,
           ButtonComponent,
-          NameSelectHeaderPipe,
-          PlayerOneNameLabelPipe,
         ],
       imports: [
         ReactiveFormsModule,

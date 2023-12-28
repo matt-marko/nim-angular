@@ -187,7 +187,7 @@ export class GameService {
     let matchCount: number = 0;
 
     for (let column = 0; column <= 2 * row; column++) {
-      if (this.matches[row][column].isActive) {
+      if (this.getMatches()[row][column].isActive) {
         matchCount++;
       }
     }
@@ -203,7 +203,7 @@ export class GameService {
     let activeMatches: number = 0;
 
     for (let column = 0; column <= clickedMatch.column; column++) {
-      if (this.matches[clickedMatch.row][column].isActive) {
+      if (this.getMatches()[clickedMatch.row][column].isActive) {
         activeMatches++;
       }
     }
