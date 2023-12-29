@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Match } from '../match';
-import { Turn } from '../turn';
+import {Injectable} from '@angular/core';
+import {Match} from '../match';
+import {Turn} from '../turn';
+import {Difficulty} from "../difficulty";
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class GameService {
   private numRows: number;
   private computerIsThinking: boolean;
   private score: number;
+  private difficulty: Difficulty;
 
   /*
   * Indicates how many periods are displayed in the turn message
@@ -30,6 +32,7 @@ export class GameService {
     this.computerIsThinking = false;
     this.computerThinkingPhase = 1;
     this.score = 0;
+    this.difficulty = Difficulty.easy;
 
     // Initialize matches to all be active
     let matches: Match[][] = [];
@@ -88,6 +91,14 @@ export class GameService {
     this.score = score;
   }
 
+  getDifficulty(): Difficulty {
+    return this.difficulty;
+  }
+
+  setDifficulty(difficulty: Difficulty): void {
+    this.difficulty = difficulty;
+  }
+
   getMoveIsInvalid(): boolean {
     return this.moveIsInvalid;
   }
@@ -97,14 +108,14 @@ export class GameService {
   }
 
   handleMatchClick(clickedMatch: Match): void {
-    if (this.gameEnded === false && this.computerIsThinking === false) {
+    if (!this.gameEnded && !this.computerIsThinking) {
       this.doPlayerMove(clickedMatch);
 
       if (this.matchesLeft() === 1) {
         this.gameEnded = true;
       }
 
-      if (this.turn === Turn.computer && this.gameEnded === false) {
+      if (this.turn === Turn.computer && !this.gameEnded) {
         this.computerIsThinking = true;
 
         const computerThinkingPromise: Promise<void> = new Promise((resolve) => {
@@ -132,6 +143,17 @@ export class GameService {
   }
 
   simulateComputerMove(): void {
+    if(this.getDifficulty() === Difficulty.easy) {
+      this.simulateEasyComputerMove();
+    } else {
+      this.simulateImpossibleComputerMove()
+    }
+  }
+
+  /*
+  * Simulates an easy move
+  */
+  simulateEasyComputerMove(): void {
     let validRows: number[] = [];
     let selectedMatch: Match;
     let selectedRow: number;
@@ -164,6 +186,13 @@ export class GameService {
     this.removeMatches(selectedMatch);
     this.updateTurn();
     this.computerIsThinking = false;
+  }
+
+  /*
+  * Simulates an optimal move
+  */
+  simulateImpossibleComputerMove(): void {
+
   }
 
   /*

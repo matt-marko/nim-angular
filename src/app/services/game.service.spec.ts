@@ -18,18 +18,16 @@ describe('GameService', () => {
   it('should return the number of active matches', () => {
     expect(service.matchesLeft()).toEqual(16);
 
-    /* const mockMatches: Match[][] = getMockMatches();
-
-    spyOn(service, 'getMatches').and.returnValue(mockMatches);
+    spyOn(service, 'matchesLeftInRow').and.returnValues(1,3,3,3);
   
-    expect(service.matchesLeft()).toEqual(6);*/
+    expect(service.matchesLeft()).toEqual(10);
   });
 
   it('should return the number of active matches left in the specified row', () => {
     const mockMatches: Match[][] = getMockMatches();
 
     spyOn(service, 'getMatches').and.returnValue(mockMatches);
-  
+
     expect(service.matchesLeftInRow(0)).toEqual(1);
     expect(service.matchesLeftInRow(1)).toEqual(3);
     expect(service.matchesLeftInRow(2)).toEqual(3);
@@ -87,7 +85,7 @@ describe('GameService', () => {
               row: i, 
               column: j,
             }
-          );   
+          );
         }
       }
 

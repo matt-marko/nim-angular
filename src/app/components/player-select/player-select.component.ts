@@ -12,4 +12,4 @@ export class PlayerSelectComponent {
   handlePlayerSelect(playerCount: number): void {
     this.gameService.setNumPlayers(playerCount);
   }
-} 
+}

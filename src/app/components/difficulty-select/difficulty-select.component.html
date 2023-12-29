@@ -1,0 +1,17 @@
+<app-board>
+    <h2>Select your difficulty!</h2>
+    <app-button routerLink="/name-select"
+                buttonText="Easy"
+                buttonColour="green"
+                (click)="handleDifficultySelect(Difficulty.easy)">
+    </app-button>
+    <app-button routerLink="/name-select"
+                buttonText="Impossible!"
+                buttonColour="red"
+                (click)="handleDifficultySelect(Difficulty.impossible)">
+    </app-button>
+    <app-button routerLink="/player-select"
+                buttonText="Back"
+                buttonColour="blue">
+    </app-button>
+</app-board>

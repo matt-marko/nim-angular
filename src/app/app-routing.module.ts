@@ -6,6 +6,7 @@ import { InstructionsComponent } from './components/instructions/instructions.co
 import { PlayerSelectComponent } from './components/player-select/player-select.component';
 import { NameSelectComponent } from './components/name-select/name-select.component';
 import { HighScoresComponent } from './components/high-scores/high-scores.component';
+import {DifficultySelectComponent} from "./components/difficulty-select/difficulty-select.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -14,6 +15,7 @@ const routes: Routes = [
   { path: 'instructions', component: InstructionsComponent },
   { path: 'high-scores', component: HighScoresComponent },
   { path: 'game', component: GameComponent },
+  { path: 'difficulty-select', component: DifficultySelectComponent },
 ];
 
 @NgModule({

@@ -14,6 +14,7 @@ import { MatchComponent } from './components/match/match.component';
 import { NameSelectComponent } from './components/name-select/name-select.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HighScoresComponent } from './components/high-scores/high-scores.component';
+import { DifficultySelectComponent } from './components/difficulty-select/difficulty-select.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { HighScoresComponent } from './components/high-scores/high-scores.compon
     MatchComponent,
     NameSelectComponent,
     HighScoresComponent,
+    DifficultySelectComponent,
   ],
   imports: [
     BrowserModule,
