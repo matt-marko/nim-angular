@@ -151,7 +151,7 @@ export class GameService {
   }
 
   /*
-  * Simulates an easy move
+  * Simulates a random move
   */
   simulateEasyComputerMove(): void {
     let validRows: number[] = [];
@@ -192,7 +192,29 @@ export class GameService {
   * Simulates an optimal move
   */
   simulateImpossibleComputerMove(): void {
+    let nimSum: number = -1;
 
+    while (nimSum != 0) {
+      for (let row = 0; row < this.numRows; row++) {
+        for (let column = 0; column < 2 * row; column++) {
+          nimSum = this.nimSumAfterRemovingMatch(this.matches[row][column]);
+        }
+      }
+    }
+  }
+
+  nimSumAfterRemovingMatch(match: Match): number {
+    let matchCount: number = 0;
+
+    for (let row = 0; row < this.numRows; row++) {
+      for (let column = 0; column <= 2 * row; column++) {
+        if (this.getMatches()[row][column].isActive) {
+          matchCount++;
+        }
+      }
+    }
+
+    return matchCount;
   }
 
   /*
