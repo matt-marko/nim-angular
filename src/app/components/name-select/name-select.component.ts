@@ -38,17 +38,28 @@ export class NameSelectComponent {
   onNameSelect(): void {
     this.nameForm.markAllAsTouched();
 
-    if (this.numPlayers === 1) {
-      if (this.playerOneName?.valid) {
-        this.nameService.setPlayerOneName(this.nameForm.value.playerOneName);
-        this.router.navigate(['/game']);
-      }
-    } else if (this.numPlayers === 2) {
-      if (this.playerOneName?.valid && this.playerTwoName?.valid) {
-        this.nameService.setPlayerOneName(this.nameForm.value.playerOneName);
-        this.nameService.setPlayerTwoName(this.nameForm.value.playerTwoName);
-        this.router.navigate(['/game']);
-      }
+    const validForOnePlayer: boolean | undefined = this.numPlayers === 1
+                                                && this.playerOneName?.valid;
+    const validForTwoPlayers: boolean | undefined = this.numPlayers === 2
+                                                && this.playerOneName?.valid
+                                                && this.playerTwoName?.valid;
+
+    if (validForOnePlayer || validForTwoPlayers) {
+      this.startGame();
     }
+  }
+
+  startGame(): void {
+    this.nameService.setPlayerOneName(this.nameForm.value.playerOneName);
+
+    if (this.numPlayers === 2) {
+      this.nameService.setPlayerTwoName(this.nameForm.value.playerTwoName);
+    }
+
+    // Reset the game in case it hasn't been properly reset before
+    // due to the user using the back button
+    this.gameService.resetGame();
+
+    this.router.navigate(['/game']);
   }
 }

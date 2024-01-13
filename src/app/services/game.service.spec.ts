@@ -65,7 +65,7 @@ describe('GameService', () => {
 
     for (let i = 0; i < 4; i++) {
       const row: Match[] = [];
-  
+
       for (let j = 0; j <= 2 * i; j++) {
         
         if (j < 3) {
