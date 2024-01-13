@@ -12,16 +12,15 @@ export class GameService {
   private turn: Turn;
   private gameEnded: boolean;
   private moveIsInvalid: boolean;
-  private numRows: number;
   private computerIsThinking: boolean;
   private score: number;
   private difficulty: Difficulty;
-
-  /*
-  * Indicates how many periods are displayed in the turn message
-  * when the computer is thinking about which move to make.
-  */
+  
+  // Indicates how many periods are displayed in the turn message
+  // when the computer is thinking about which move to make.
   private computerThinkingPhase: number;
+
+  private readonly numRows: number;
 
   constructor() {
     this.numPlayers = 0;
@@ -117,16 +116,20 @@ export class GameService {
 
       if (this.turn === Turn.computer && !this.gameEnded) {
         this.computerIsThinking = true;
-
-        const computerThinkingPromise: Promise<void> = new Promise((resolve) => {
-          this.simulateComputerThinking(resolve);
+        
+        const computerThinkingPromise: Promise<void> = new Promise((resolve, reject) => {
+          this.simulateComputerThinking(resolve, reject);
         });
 
         computerThinkingPromise.then(() => {
-          this.simulateComputerMove();
+          // If the game has been reset and it's the player's turn again, then 
+          // do not execute the computer's turn
+          if (this.getTurn() === Turn.computer) {
+            this.simulateComputerMove();
 
-          if (this.matchesLeft() === 1) {
-            this.gameEnded = true;
+            if (this.matchesLeft() === 1) {
+              this.gameEnded = true;
+            }
           }
         });
       }
@@ -143,17 +146,23 @@ export class GameService {
   }
 
   simulateComputerMove(): void {
+    let selectedMatch: Match;
+
     if(this.getDifficulty() === Difficulty.easy) {
-      this.simulateEasyComputerMove();
+      selectedMatch = this.calculateEasyComputerMove();
     } else {
-      this.simulateImpossibleComputerMove()
+      selectedMatch = this.calculateImpossibleComputerMove()
     }
+
+    this.removeMatches(selectedMatch);
+    this.updateTurn();
+    this.computerIsThinking = false;
   }
 
   /*
   * Simulates a random move
   */
-  simulateEasyComputerMove(): void {
+  calculateEasyComputerMove(): Match {
     let validRows: number[] = [];
     let selectedMatch: Match;
     let selectedRow: number;
@@ -181,40 +190,104 @@ export class GameService {
       selectedColumn = this.randomIntFromInterval(lowerBound, upperBound);
     }
      
-    selectedMatch = this.matches[selectedRow][selectedColumn]
-
-    this.removeMatches(selectedMatch);
-    this.updateTurn();
-    this.computerIsThinking = false;
+    return this.getMatches()[selectedRow][selectedColumn];
   }
 
   /*
   * Simulates an optimal move
   */
-  simulateImpossibleComputerMove(): void {
-    let nimSum: number = -1;
+  calculateImpossibleComputerMove(): Match {
+    let nimSum: number = 0;
+    let optimalMoveFound: boolean = false;
+    let optimalMove: Match = this.getMatches()[0][0];
 
-    while (nimSum != 0) {
+    if (!optimalMoveFound) {
       for (let row = 0; row < this.numRows; row++) {
-        for (let column = 0; column < 2 * row; column++) {
-          nimSum = this.nimSumAfterRemovingMatch(this.matches[row][column]);
+        for (let column = 0; column <= 2 * row; column++) {
+          if (this.getMatches()[row][column].isActive) {
+            nimSum = this.nimSumAfterRemovingMatch(this.getMatches()[row][column]);
+
+            if (nimSum === 0 && this.getMatches()[row][column].isActive) {
+              optimalMoveFound = true;
+            }
+
+            if (optimalMoveFound) {
+              optimalMove = this.getMatches()[row][column];
+
+              // This condition is necessary because the person to remove
+              // the last match LOSES
+              if (this.moveWouldLeaveOnlyRowsOfSizeOne(optimalMove)) {
+                optimalMove = this.leaveOddNumberOfRowsOfSizeOne();
+              }
+
+              break;
+            }
+          }
+        }
+
+        if (optimalMoveFound) {
+          break;
         }
       }
     }
+
+    // If the optimal move hasn't been found, there must be only two active
+    // matches in two different rows.
+    if (!optimalMoveFound) {
+      for (let row = 0; row < this.numRows; row++) {
+        for (let column = 0; column <= 2 * row; column++) {
+          if (this.getMatches()[row][column].isActive) {
+            optimalMove = this.getMatches()[row][column];
+          }
+        }
+      }
+    }
+
+    return optimalMove;
+
   }
 
-  nimSumAfterRemovingMatch(match: Match): number {
-    let matchCount: number = 0;
+  private moveWouldLeaveOnlyRowsOfSizeOne(selectedMatch: Match): boolean {
+    const matchesThatWouldBeLeft = this.matchesLeftInRow(selectedMatch.row) - this.matchesToRemove(selectedMatch);
 
     for (let row = 0; row < this.numRows; row++) {
-      for (let column = 0; column <= 2 * row; column++) {
-        if (this.getMatches()[row][column].isActive) {
-          matchCount++;
+      if (row !== selectedMatch.row) {
+        if (this.matchesLeftInRow(row) >= 2) {
+          return false;
+        }
+      }
+
+      if (row === selectedMatch.row) {
+        if (matchesThatWouldBeLeft >= 2) {
+          return false;
         }
       }
     }
 
-    return matchCount;
+    return true;
+  }
+
+  private leaveOddNumberOfRowsOfSizeOne(): Match {
+    let matchToRemove: Match = this.getMatches()[0][0];
+    let rowsWithOneMatch: number = 0;
+
+    for (let row = 0; row < this.numRows; row++) {
+      if (this.matchesLeftInRow(row) === 1) {
+        rowsWithOneMatch++;
+      }
+    }
+
+    for (let row = 0; row < this.numRows; row++) {
+      if (this.matchesLeftInRow(row) > 1) {
+        matchToRemove = rowsWithOneMatch % 2 === 0 ?
+          this.getMatches()[row][(2 * row) - 1] :
+          this.getMatches()[row][2 * row];
+
+        break;
+      }
+    }
+
+    return matchToRemove;
   }
 
   /*
@@ -267,6 +340,7 @@ export class GameService {
     this.gameEnded = false;
     this.moveIsInvalid = false;
     this.score = 0;
+    this.computerIsThinking = false;
 
     for (let i = 0; i < this.numRows; i++) {
       for (let j = 0; j <= 2 * i; j++) {
@@ -275,11 +349,11 @@ export class GameService {
     }
   }
 
-  private simulateComputerThinking(resolve: Function): void {
+  private simulateComputerThinking(resolve: Function, reject: Function): void {
     if (this.computerThinkingPhase <= 3) {
       setTimeout(() => {
         this.computerThinkingPhase++;
-        this.simulateComputerThinking(resolve);
+        this.simulateComputerThinking(resolve, reject);
       }, 500);
     } else {
       this.computerThinkingPhase = 1;
@@ -287,11 +361,44 @@ export class GameService {
     }
   }
 
+  private nimSumAfterRemovingMatch(match: Match): number {
+    const rowNimSums = Array(4);
+
+    let matchCount: number = 0;
+    let nimSum: number = 0;
+
+    for (let row = 0; row < this.numRows; row++) {
+      matchCount = 0;
+
+      if (row === match.row) {
+        for (let column = match.column + 1; column <= 2 * row; column++) {
+          if (this.getMatches()[row][column].isActive) {
+            matchCount++;
+          }
+        }
+      } else {
+        for (let column = 0; column <= 2 * row; column++) {
+          if (this.getMatches()[row][column].isActive) {
+            matchCount++;
+          }
+        }
+      }
+
+      rowNimSums[row] = matchCount;
+    }
+
+    for (let row = 0; row < this.numRows; row++) {
+      nimSum ^= rowNimSums[row];
+    }
+
+    return nimSum;
+  }
+
   /*
   * Performs the logic related to a user clicking on the specified match
   */
   private doPlayerMove(clickedMatch: Match): void {
-    if (clickedMatch.isActive && this.turn != Turn.computer) {
+    if (clickedMatch.isActive && this.getTurn() != Turn.computer) {
       if (this.matchesToRemove(clickedMatch) !== this.matchesLeft()) {
 
         this.moveIsInvalid = false;

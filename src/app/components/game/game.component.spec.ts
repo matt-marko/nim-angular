@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { GameComponent } from './game.component';
 import { BoardComponent } from '../board/board.component';
 import { ButtonComponent } from '../button/button.component';
@@ -7,7 +6,6 @@ import { MatchComponent } from '../match/match.component';
 import { ChangeDetectionStrategy, DebugElement } from '@angular/core';
 import { Turn } from '../../turn';
 import { GameService } from '../../services/game.service';
-import { HighScoreService } from '../../services/high-score.service';
 import { HttpClientModule } from '@angular/common/http';
 
 describe('GameComponent', () => {
