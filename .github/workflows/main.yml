@@ -38,4 +38,4 @@ jobs:
         run: npm install -g netlify-cli
 
       - name: Deploy to Netlify
-        run: netlify deploy --prod --auth "${{ secrets.NETLIFY_ACCESS_TOKEN }}"
+        run: netlify deploy --prod --auth "${{ secrets.NETLIFY_ACCESS_TOKEN }}" --dir=dist/nim-angular
