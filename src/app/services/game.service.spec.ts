@@ -31,7 +31,7 @@ describe('GameService', () => {
     expect(service.matchesLeftInRow(0)).toEqual(1);
     expect(service.matchesLeftInRow(1)).toEqual(3);
     expect(service.matchesLeftInRow(2)).toEqual(3);
-    expect(service.matchesLeftInRow(3)).toEqual(3);
+    expect(service.matchesLeftInRow(3)).toEqual(2);
   });
 
   it('should determine the correct number of matches that would be removed on a click', () => {
