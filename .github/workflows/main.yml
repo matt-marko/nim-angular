@@ -5,6 +5,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -19,3 +20,24 @@ jobs:
 
       - name: Run Tests
         run: npm run test -- --browsers=ChromeHeadless --watch=false
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Netlify CLI
+        run: npm install -g netify-cli
+
+      - name: Deploy to Netlify
+        run: netlify deploy --prod
+        env:
+          NETLIFY_ACCESS_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN }}
