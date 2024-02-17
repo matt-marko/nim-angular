@@ -6,7 +6,9 @@ import { InstructionsComponent } from './components/instructions/instructions.co
 import { PlayerSelectComponent } from './components/player-select/player-select.component';
 import { NameSelectComponent } from './components/name-select/name-select.component';
 import { HighScoresComponent } from './components/high-scores/high-scores.component';
-import {DifficultySelectComponent} from "./components/difficulty-select/difficulty-select.component";
+import { DifficultySelectComponent } from './components/difficulty-select/difficulty-select.component';
+import { PlayModeSelectComponent } from './components/play-mode-select/play-mode-select.component';
+import { WaitingRoomComponent } from './components/waiting-room/waiting-room.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,6 +18,8 @@ const routes: Routes = [
   { path: 'high-scores', component: HighScoresComponent },
   { path: 'game', component: GameComponent },
   { path: 'difficulty-select', component: DifficultySelectComponent },
+  { path: 'play-mode-select', component: PlayModeSelectComponent },
+  { path: 'waiting-room', component: WaitingRoomComponent },
 ];
 
 @NgModule({

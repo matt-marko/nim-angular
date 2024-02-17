@@ -1,7 +1,8 @@
-import {Injectable} from '@angular/core';
-import {Match} from '../match';
-import {Turn} from '../turn';
-import {Difficulty} from "../difficulty";
+import { Injectable } from '@angular/core';
+import { Match } from '../match';
+import { Turn } from '../enums/turn';
+import { Difficulty } from "../enums/difficulty";
+import { PlayMode } from '../enums/play-mode';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class GameService {
   private computerIsThinking: boolean;
   private score: number;
   private difficulty: Difficulty;
+  private playMode: PlayMode;
   
   // Indicates how many periods are displayed in the turn message
   // when the computer is thinking about which move to make.
@@ -32,6 +34,7 @@ export class GameService {
     this.computerThinkingPhase = 1;
     this.score = 0;
     this.difficulty = Difficulty.easy;
+    this.playMode = PlayMode.local;
 
     // Initialize matches to all be active
     let matches: Match[][] = [];
@@ -104,6 +107,14 @@ export class GameService {
 
   getComputerThinkingPhase(): number {
     return this.computerThinkingPhase;
+  }
+
+  getPlayMode(): PlayMode {
+    return this.playMode;
+  }
+
+  setPlayMode(playMode: PlayMode): void {
+    this.playMode = playMode;
   }
 
   handleMatchClick(clickedMatch: Match): void {

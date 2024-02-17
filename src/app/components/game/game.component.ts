@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { GameService } from '../../services/game.service';
 import { Match } from '../../match';
-import { Turn } from '../../turn';
+import { Turn } from '../../enums/turn';
 import { NameService } from '../../services/name.service';
 import { HighScore } from '../../high-score';
 import { HighScoreService } from '../../services/high-score.service';

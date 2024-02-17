@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { GameService } from '../../services/game.service';
+import { PlayMode } from '../../enums/play-mode';
 
 @Component({
   selector: 'app-player-select',
@@ -11,5 +12,9 @@ export class PlayerSelectComponent {
 
   handlePlayerSelect(playerCount: number): void {
     this.gameService.setNumPlayers(playerCount);
+
+    if (playerCount === 1) {
+      this.gameService.setPlayMode(PlayMode.local);
+    }
   }
 }

@@ -1,0 +1,24 @@
+<app-board>
+	<app-button routerLink="/name-select"
+							buttonText="Local Game"
+							buttonColour="green"
+							(click)="handlePlayModeSelect(PlayMode.local)">
+	</app-button>
+
+	<app-button routerLink="/name-select"
+							buttonText="Create Online Game"
+							buttonColour="green"
+							(click)="handlePlayModeSelect(PlayMode.onlineCreator)">
+	</app-button>
+
+	<app-button routerLink="/name-select"
+							buttonText="Join Online Game"
+							buttonColour="green"
+							(click)="handlePlayModeSelect(PlayMode.onlineJoiner)">
+	</app-button>
+
+	<app-button routerLink="/player-select"
+							buttonText="Back"
+							buttonColour="blue">
+	</app-button>
+</app-board>
