@@ -4,6 +4,7 @@ import { NameService } from '../../services/name.service';
 import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
 import { PlayMode } from '../../enums/play-mode';
+import { WebSocketService } from '../../services/web-socket.service';
 
 @Component({
   selector: 'app-name-select',
@@ -11,16 +12,13 @@ import { PlayMode } from '../../enums/play-mode';
   styleUrls: ['./name-select.component.css']
 })
 export class NameSelectComponent {
-  nameForm: FormGroup = new FormGroup({
+  gameForm: FormGroup = new FormGroup({
     playerOneName: new FormControl('', [
       Validators.required,
     ]),
     playerTwoName: new FormControl('', [
       Validators.required,
     ]),
-  });
-
-  gameCodeForm: FormGroup = new FormGroup({
     gameCode: new FormControl('', [
       Validators.required,
     ]),
@@ -30,30 +28,40 @@ export class NameSelectComponent {
   numPlayers: number = this.gameService.getNumPlayers();
   playMode: PlayMode = this.gameService.getPlayMode();
 
+  isConnectionError: boolean = false;
+  isLoading: boolean = false;
+
+  connectionSuccess$ = this.webSocketService.connectionSuccess$;
+
   // This enables us to use the PlayMode enum in the template
   readonly PlayMode = PlayMode;
 
   constructor(
     private nameService: NameService,
     private gameService: GameService,
+    private webSocketService: WebSocketService,
     private router: Router,
   ) { }
 
+  ngOnInit(): void {
+
+  }
+
   get playerOneName() {
-    return this.nameForm.get('playerOneName');
+    return this.gameForm.get('playerOneName');
   }
 
   get playerTwoName() {
-    return this.nameForm.get('playerTwoName');
+    return this.gameForm.get('playerTwoName');
   }
 
   get gameCode() {
-    return this.gameCodeForm.get('gameCode');
+    return this.gameForm.get('gameCode');
   }
 
   onNameSelect(): void {
-    this.nameForm.markAllAsTouched();
-    this.gameCodeForm.markAllAsTouched();
+    this.gameForm.markAllAsTouched();
+    this.gameForm.markAllAsTouched();
 
     const validForOnePlayer: boolean | undefined = this.numPlayers === 1
       && this.playerOneName?.valid;
@@ -76,10 +84,10 @@ export class NameSelectComponent {
   }
 
   startGame(): void {
-    this.nameService.setPlayerOneName(this.nameForm.value.playerOneName);
+    this.nameService.setPlayerOneName(this.gameForm.value.playerOneName);
 
     if (this.numPlayers === 2) {
-      this.nameService.setPlayerTwoName(this.nameForm.value.playerTwoName);
+      this.nameService.setPlayerTwoName(this.gameForm.value.playerTwoName);
     }
 
     // Reset the game in case it hasn't been properly reset before
@@ -89,8 +97,23 @@ export class NameSelectComponent {
     if (this.playMode === PlayMode.local) {
       this.router.navigate(['/game']);
     } else {
-      this.router.navigate(['/waiting-room']);
-    }
+      this.isConnectionError = false;
+      this.isLoading = true;
+
+      this.webSocketService.connect();
+
+      this.webSocketService.connectionSuccess$.subscribe({
+        next: (isSuccess) => {
+          if(isSuccess) {
+            this.router.navigate(['/waiting-room']);
+          } else {
+            this.isLoading = false;
+            this.isConnectionError = true;
+            this.webSocketService.disconnect();
+          }
+        }
+      })
+    };
   }
 
   calculateTitleText(): string {
