@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { Observable, Subject } from 'rxjs';
+import { WebSocketCode } from '../enums/webSocketCode';
+import { WebSocketMessage } from '../interfaces/WebSocketMessage';
 
 @Injectable({
   providedIn: 'root'
@@ -13,19 +15,17 @@ export class WebSocketService {
   private connectionSuccessSubject: Subject<boolean> = new Subject<boolean>();
   connectionSuccess$: Observable<boolean> = this.connectionSuccessSubject.asObservable();
 
-  private connectionMessagesSubject: Subject<string> = new Subject<string>();
-  connectionMessages$: Observable<string> = this.connectionMessagesSubject.asObservable();
+  private connectionMessagesSubject: Subject<WebSocketMessage> = new Subject<WebSocketMessage>();
+  connectionMessages$: Observable<WebSocketMessage> = this.connectionMessagesSubject.asObservable();
 
+  // TODO remove some subjects
   private gameCodeSubject: Subject<string> = new Subject<string>();
   gameCode$: Observable<string> = this.gameCodeSubject.asObservable();
-
-  // TODO: remove this
-  private gameCode: string = '';
   
   constructor() {} 
 
-  connect(): void {
-    this.socket = new WebSocket(this.webSocketUrl)
+  connect(username: string, gameCode: string): void {
+    this.socket = new WebSocket(this.webSocketUrl + username + '/' + gameCode);
 
     this.socket.onopen = (event: Event) => {
       console.log('Connection opened');
@@ -37,12 +37,41 @@ export class WebSocketService {
       this.connectionSuccessSubject.next(false);
     }    
 
+    this.socket.onclose = () => {
+      console.error('Connection closed');
+      this.connectionSuccessSubject.next(false);
+    }   
+
     this.socket.onmessage = (event: MessageEvent) => {
       console.log('Message received from server:', event.data);
 
+      // TODO STOP HARDCODING
       if (typeof event.data === 'string') {
-        if (event.data.includes('CODE:')) {
-          this.gameCodeSubject.next(event.data.split(' ')[1]);
+        if (event.data.includes('CONNECTION-OPENED:')) {
+          this.connectionMessagesSubject.next({
+            webSocketCode: WebSocketCode.connectionOpened,
+            message: event.data.split(' ')[1],
+          });
+        } else if (event.data.includes('GAME-CREATED:')) {
+          this.connectionMessagesSubject.next({
+            webSocketCode: WebSocketCode.gameCreated,
+            message: event.data.split(' ')[1],
+          });
+        } else if (event.data.includes('GAME-JOINED:')) {
+          this.connectionMessagesSubject.next({
+            webSocketCode: WebSocketCode.gameJoined,
+            message: event.data.split(' ')[1],
+          });
+        } else if (event.data.includes('GAME-NOT-FOUND:')) {
+          this.connectionMessagesSubject.next({
+            webSocketCode: WebSocketCode.gameNotFound,
+            message: event.data.split(' ')[1],
+          });
+        } else if (event.data.includes('OPPONENT-NAME:')) {
+          this.connectionMessagesSubject.next({
+            webSocketCode: WebSocketCode.opponentName,
+            message: event.data.split(' ')[1],
+         });
         }
       }
     };
@@ -52,35 +81,13 @@ export class WebSocketService {
     this.socket?.close();
   }
 
-  getGameCode(): string {
-    return this.gameCode;
+  sendMessage(message: string): void {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(message);
+    } else {
+
+      // TODO change this message
+      console.error('WebSocket is not open. Ready state:', this.socket?.readyState);
+    }
   }
-
-
-  /*connect(): void {
-    // You can add any necessary event listeners here
-    this.socket.subscribe({
-      next: (msg) => {
-        console.log('message received: ' + JSON.stringify(msg)),
-        this.connectionSuccessSubject.next(true);
-      },
-      error: (err) => {
-        console.error(err);
-        this.connectionSuccessSubject.next(false);
-      }, 
-      complete: () => console.log('complete'),
-    });
-      /*(message) => {
-        // Handle incoming messages
-        console.log('Received message:', message);
-      },
-      (error) => {
-        // Handle errors
-        console.error('WebSocket error:', error);
-      },
-      () => {
-        // Handle closure of connection
-        console.log('WebSocket connection closed');
-      }
-  }*/
 }

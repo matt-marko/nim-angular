@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatchComponent } from './match.component';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { Match } from '../../match';
+import { Match } from '../../interfaces/match';
 
 describe('MatchComponent', () => {
   let component: MatchComponent;

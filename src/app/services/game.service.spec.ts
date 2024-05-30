@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { GameService } from './game.service';
-import { Match } from '../match';
+import { Match } from '../interfaces/match';
 
 describe('GameService', () => {
   let service: GameService;

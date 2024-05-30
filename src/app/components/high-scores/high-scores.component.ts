@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HighScoreService } from '../../services/high-score.service';
 import { HighScore } from '../../high-score';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-high-scores',
@@ -13,11 +14,14 @@ export class HighScoresComponent {
 
   highScores: HighScore[] = [];
 
+  destroy$ = new Subject<void>();
+
   constructor(private highScoreService: HighScoreService) {}
 
   ngOnInit() {
-    this.highScoreService.getHighScores().
-      subscribe((highScores: HighScore[]) => {
+    this.highScoreService.getHighScores()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((highScores: HighScore[]) => {
         this.highScores = this.highScoreService.sortByScore(highScores);
       }, (error) => {
         this.errorHasOccurred = true;
@@ -25,5 +29,10 @@ export class HighScoresComponent {
       }, () => {
         this.isLoading = false;
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

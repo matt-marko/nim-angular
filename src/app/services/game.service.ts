@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Match } from '../match';
+import { Match } from '../interfaces/match';
 import { Turn } from '../enums/turn';
 import { Difficulty } from "../enums/difficulty";
 import { PlayMode } from '../enums/play-mode';
@@ -17,6 +17,7 @@ export class GameService {
   private score: number;
   private difficulty: Difficulty;
   private playMode: PlayMode;
+  private gameCode: string;
   
   // Indicates how many periods are displayed in the turn message
   // when the computer is thinking about which move to make.
@@ -35,6 +36,7 @@ export class GameService {
     this.score = 0;
     this.difficulty = Difficulty.easy;
     this.playMode = PlayMode.local;
+    this.gameCode = '';
 
     // Initialize matches to all be active
     let matches: Match[][] = [];
@@ -115,6 +117,14 @@ export class GameService {
 
   setPlayMode(playMode: PlayMode): void {
     this.playMode = playMode;
+  }
+
+  getGameCode(): string {
+    return this.gameCode;
+  } 
+
+  setGameCode(gameCode: string): void {
+    this.gameCode = gameCode;
   }
 
   handleMatchClick(clickedMatch: Match): void {

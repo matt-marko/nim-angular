@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { GameService } from '../../services/game.service';
-import { Match } from '../../match';
+import { Match } from '../../interfaces/match';
 import { Turn } from '../../enums/turn';
 import { NameService } from '../../services/name.service';
 import { HighScore } from '../../high-score';
 import { HighScoreService } from '../../services/high-score.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-game',
@@ -30,6 +31,8 @@ export class GameComponent {
   highScoreErrorOccurred: boolean = false;
   highScoreSuccess: boolean = false;
 
+  destroy$ = new Subject<void>();
+
   // This enables us to use the Turn enum in the template
   readonly Turn = Turn;
 
@@ -47,6 +50,11 @@ export class GameComponent {
     this.highScoreIsLoading = false;
     this.highScoreSuccess = false;
     this.highScoreErrorOccurred = false;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngAfterContentChecked(): void {
@@ -91,8 +99,9 @@ export class GameComponent {
     this.showHighScoreButtons = false;
     this.highScoreIsLoading = true;
 
-    this.highScoreService.postHighScore(highScore).
-      subscribe((highScore: HighScore[]) => {
+    this.highScoreService.postHighScore(highScore)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((highScore: HighScore[]) => {
         this.highScoreSuccess = true;
       }, (error: any) => {
         this.highScoreErrorOccurred = true;
