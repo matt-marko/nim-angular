@@ -9,12 +9,20 @@
 	</p>
 
 	<h3 *ngIf="playMode === PlayMode.onlineJoiner">
-		Waiting for the host to start the game...
+		{{ calculateOnlineJoinerMessage() }}
 	</h3>
 
-    <app-button *ngIf="playerTwoJoined && playMode === PlayMode.onlineCreator"
+	<h2 *ngIf="isLoading">Loading...</h2>
+
+    <app-button *ngIf="playerTwoJoined && playMode === PlayMode.onlineCreator && !isLoading"
                 buttonText="Start Game!"
                 buttonColour="green"
                 (click)="startGame()">
+    </app-button>
+
+	<app-button *ngIf="hostLeft && playMode === PlayMode.onlineJoiner"
+                buttonText="Main Menu"
+                buttonColour="blue"
+                (click)="goToMainMenu()">
     </app-button>
 </app-board>

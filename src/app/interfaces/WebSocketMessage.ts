@@ -1,7 +1,5 @@
-import { WebSocketCode } from "../enums/webSocketCode";
-
 export interface WebSocketMessage {
-    webSocketCode: WebSocketCode,
+    webSocketCode: string,
     message: string,
 }
   

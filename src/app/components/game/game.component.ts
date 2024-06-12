@@ -6,6 +6,9 @@ import { NameService } from '../../services/name.service';
 import { HighScore } from '../../high-score';
 import { HighScoreService } from '../../services/high-score.service';
 import { Subject, takeUntil } from 'rxjs';
+import { PlayMode } from 'src/app/enums/play-mode';
+import { MessageConstants, WebSocketService } from 'src/app/services/web-socket.service';
+import { WebSocketMessage } from 'src/app/interfaces/WebSocketMessage';
 
 @Component({
   selector: 'app-game',
@@ -20,6 +23,7 @@ export class GameComponent {
   numPlayers: number = 0;
   computerThinkingPhase: number = 1;
   score: number = 0;
+  playMode: PlayMode = PlayMode.local;
 
   playerOneName: string = '';
   playerTwoName: string = '';
@@ -31,25 +35,44 @@ export class GameComponent {
   highScoreErrorOccurred: boolean = false;
   highScoreSuccess: boolean = false;
 
+  opponentLeft: boolean = false;
+
   destroy$ = new Subject<void>();
 
-  // This enables us to use the Turn enum in the template
+  // This enables us to use the Turn and PlayMode enums in the template
   readonly Turn = Turn;
+  readonly PlayMode = PlayMode;
 
   constructor(
     private gameService: GameService,
     private nameService: NameService,
     private highScoreService: HighScoreService,
+    private webSocketService: WebSocketService,
   ) { }
 
   ngOnInit(): void {
     this.matches = this.gameService.getMatches();
+    this.playMode = this.gameService.getPlayMode();
 
     this.notSavingHighScore = false;
     this.showHighScoreButtons = true;
     this.highScoreIsLoading = false;
     this.highScoreSuccess = false;
     this.highScoreErrorOccurred = false;
+
+    if (this.playMode !== PlayMode.local) {
+      this.webSocketService.connectionMessages$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          // TODO add error after next?
+          next: (socketMessage: WebSocketMessage) => {
+            if (socketMessage.webSocketCode === MessageConstants.USER_LEFT) {
+              console.log('hi')
+              this.opponentLeft = true;
+            }
+          }
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -141,7 +164,13 @@ export class GameComponent {
     }
   }
 
+  // TODO refactor method to not use parameters maybee
   calculateTurnMessage(turn: Turn, numPlayers: number): string {
+    if (this.playMode !== PlayMode.local && this.opponentLeft) {
+      // TODO add name of opponent
+      return 'Your opponent left the game!';
+    }
+
     if (numPlayers === 1) {
       if (turn === Turn.playerOne) {
         return 'It\'s your turn, ' + this.playerOneName + '!';

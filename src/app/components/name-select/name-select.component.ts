@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NameService } from '../../services/name.service';
-import { Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
 import { PlayMode } from '../../enums/play-mode';
-import { WebSocketService } from '../../services/web-socket.service';
+import { MessageConstants, WebSocketService } from '../../services/web-socket.service';
 import { WebSocketMessage } from 'src/app/interfaces/WebSocketMessage';
-import { WebSocketCode } from 'src/app/enums/webSocketCode';
-import { Subject, switchMap, take, takeLast, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-name-select',
@@ -29,6 +28,7 @@ export class NameSelectComponent {
 
   numPlayers: number = this.gameService.getNumPlayers();
   playMode: PlayMode = this.gameService.getPlayMode();
+  gameCodeToJoin: string = '';
 
   isConnectionError: boolean = false;
   isLoading: boolean = false;
@@ -50,29 +50,27 @@ export class NameSelectComponent {
     private router: Router,
   ) { }
 
-  // TODO refactor strings (stop hardcoding)
-  // TODO add condition when game fullor name is same as host
+  // TODO add condition when game full or name is same as host
   ngOnInit(): void {
     if (this.playMode !== PlayMode.local) {
       this.webSocketService.connectionMessages$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (socketMessage: WebSocketMessage) => {
-          if (socketMessage.webSocketCode === WebSocketCode.connectionOpened) {
+          if (socketMessage.webSocketCode === MessageConstants.CONNECTION_OPENED) {
             if (this.playMode === PlayMode.onlineCreator) {
-              const gameCode = this.generateGameCode();
-              this.webSocketService.sendMessage('CREATE-GAME: ' + gameCode);
+              const gameCode: string = this.generateGameCode();
+              this.webSocketService.sendMessage(MessageConstants.CREATE_GAME + ' ' + gameCode);
             } else if (this.playMode === PlayMode.onlineJoiner) {
-              const gameCode = this.gameForm.value.gameCode;
-              this.webSocketService.sendMessage('JOIN-GAME: ' + gameCode);
+              this.webSocketService.sendMessage(MessageConstants.JOIN_GAME + ' ' + this.gameCodeToJoin);
             }
           } else if (
-            socketMessage.webSocketCode === WebSocketCode.gameCreated ||
-            socketMessage.webSocketCode === WebSocketCode.gameJoined      
+            socketMessage.webSocketCode === MessageConstants.GAME_CREATED ||
+            socketMessage.webSocketCode === MessageConstants.GAME_JOINED      
           ) {
             this.gameService.setGameCode(socketMessage.message);
             this.router.navigate(['/waiting-room']);
-          } else if (socketMessage.webSocketCode === WebSocketCode.gameNotFound) {
+          } else if (socketMessage.webSocketCode === MessageConstants.GAME_NOT_FOUND) {
             this.isLoading = false;
             this.gameNotFound = true;
             this.webSocketService.disconnect();
@@ -83,6 +81,18 @@ export class NameSelectComponent {
           this.isLoading = false;
           this.isConnectionError = true;
           this.webSocketService.disconnect();
+        }
+      });
+
+      // TODO check back button stuff
+      // might be able to do it in app.component.ts
+      // https://stackoverflow.com/questions/39132737/angular-2-how-to-detect-back-button-press-using-router-and-location-go
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationStart) {
+          // Handle the back button logic here
+          if (event.navigationTrigger === 'popstate') {
+            this.webSocketService.disconnect();
+          }
         }
       });
     }
@@ -158,9 +168,9 @@ export class NameSelectComponent {
 
       this.nameService.setPlayerTwoName(this.gameForm.value.playerOneName);
 
-      const gameCode: string = this.gameForm.value.gameCode;
+      this.gameCodeToJoin = this.gameForm.value.gameCode.toUpperCase();
 
-      this.webSocketService.connect(this.nameService.getPlayerTwoName(), gameCode);
+      this.webSocketService.connect(this.nameService.getPlayerTwoName(), this.gameCodeToJoin);
     }
   }
 

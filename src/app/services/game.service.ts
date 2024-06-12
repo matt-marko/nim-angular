@@ -200,7 +200,7 @@ export class GameService {
 
       const lowerBound = (2 * selectedRow) - (this.matchesLeftInRow(selectedRow) - 1);
       const upperBound = (selectedRow * 2) - 1;
-
+ 
       selectedColumn = this.randomIntFromInterval(lowerBound, upperBound);
     } else {
       selectedRow = validRows[this.randomIntFromInterval(0, validRows.length - 1)];
@@ -362,6 +362,7 @@ export class GameService {
     this.moveIsInvalid = false;
     this.score = 0;
     this.computerIsThinking = false;
+    this.gameCode = '';
 
     for (let i = 0; i < this.numRows; i++) {
       for (let j = 0; j <= 2 * i; j++) {

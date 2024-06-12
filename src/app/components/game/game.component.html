@@ -58,7 +58,8 @@
     </app-match>
   </div>
 
-  <app-button (click)="handleResetGame()"
+  <app-button *ngIf="playMode === PlayMode.local"
+              (click)="handleResetGame()"
               [buttonText]="gameEnded ? 'Play again!' : 'Restart'"
               buttonColour="blue">
   </app-button>
