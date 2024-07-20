@@ -1,14 +1,13 @@
 <app-board>
-  <h2>{{ numPlayers === 1 ? 'Enter your name!' : 'Enter your names!' }}</h2>
-  <form [formGroup]="nameForm">
-
+  <h2>{{ calculateTitleText() }}</h2>
+  <form [formGroup]="gameForm">
     <div class="form-label-container">
-      <label for="playerOneName">{{ numPlayers === 1 ? 'Your name: ' : ' Player one\'s name: ' }}</label>
+      <label for="playerOneName">{{ calculatePlayerOneLabelText() }}</label>
 
       <br>
 
       <input id="playerOneName"
-             [ngClass]="this.playerOneName?.invalid &&
+             [ngClass]="playerOneName?.invalid &&
                        (playerOneName?.touched || playerOneName?.dirty) ?
                        'invalid-input' : ''"
              type="text"
@@ -20,13 +19,13 @@
       </p>
     </div>
 
-    <div *ngIf="numPlayers === 2" class="form-label-container">
+    <div *ngIf="numPlayers === 2 && playMode === PlayMode.local" class="form-label-container">
       <label for="playerTwoName">Player two's name: </label>
 
       <br>
 
       <input id="playerTwoName"
-             [ngClass]="this.playerTwoName?.invalid &&
+             [ngClass]="playerTwoName?.invalid &&
                        (playerTwoName?.touched || playerTwoName?.dirty) ?
                        'invalid-input' : ''"
              type="text"
@@ -38,16 +37,42 @@
       </p>
     </div>
 
-    <div>
-      <app-button buttonText="Let's Play!"
-                  buttonColour="green"
-                  (click)="onNameSelect()">
-      </app-button>
-      <app-button routerLink="/player-select"
-                  buttonText="Back"
-                  buttonColour="blue">
-      </app-button>
+    <div *ngIf="playMode === PlayMode.onlineJoiner" class="form-label-container">
+      <label for="gameCode">Game code: </label>
+
+      <br>
+
+      <input id="gameCode"
+             [ngClass]="gameCode?.invalid &&
+                       (gameCode?.touched || gameCode?.dirty) ?
+                       'invalid-input' : ''"
+             type="text"
+             formControlName="gameCode"
+             maxlength="5">
+
+      <p *ngIf="gameCode?.invalid && (gameCode?.dirty || gameCode?.touched)">
+        Game code can't be empty!
+      </p>
     </div>
 
   </form>
+
+  <h2 *ngIf="isConnectionError">An error occurred! Please try again later</h2>
+  <h2 *ngIf="isLoading">Loading...</h2>
+  <h2 *ngIf="gameNotFound">Game not found!</h2>
+  <h2 *ngIf="gameFull">This game is already full!</h2>
+  <h2 *ngIf="hostHasSameName">Change your name, the host of this game has already picked it!</h2>
+
+  <div>
+    <app-button *ngIf="!isLoading"
+                [buttonText]="calculatePlayButtonText()"
+                buttonColour="green"
+                (click)="onNameSelect()">
+    </app-button>
+    <app-button (click)="handleBackButtonClick()"
+                buttonText="Back"
+                buttonColour="blue">
+    </app-button>
+  </div>
+
 </app-board>

@@ -1,0 +1,27 @@
+<app-board>
+	<h2>{{ calculateTitle() }}</h2>
+	<h3>The game code is: {{ gameCode }}</h3>
+
+	<p>Player one: {{ playerOneName }}</p>
+	<p>Player two: 
+		<em *ngIf="!playerTwoJoined">Waiting...</em>
+		<span *ngIf="playerTwoJoined">{{ playerTwoName }}</span>
+	</p>
+
+	<h3 *ngIf="playMode === PlayMode.onlineJoiner">
+		{{ calculateOnlineJoinerMessage() }}
+	</h3>
+
+	<h2 *ngIf="isLoading">Loading...</h2>
+
+    <app-button *ngIf="playerTwoJoined && playMode === PlayMode.onlineCreator && !isLoading"
+                buttonText="Start Game!"
+                buttonColour="green"
+                (click)="startGame()">
+    </app-button>
+
+	<app-button buttonText="Quit"
+                buttonColour="blue"
+                (click)="goToMainMenu()">
+    </app-button>
+</app-board>

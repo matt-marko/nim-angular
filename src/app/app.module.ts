@@ -15,6 +15,9 @@ import { NameSelectComponent } from './components/name-select/name-select.compon
 import { ReactiveFormsModule } from '@angular/forms';
 import { HighScoresComponent } from './components/high-scores/high-scores.component';
 import { DifficultySelectComponent } from './components/difficulty-select/difficulty-select.component';
+import { PlayModeSelectComponent } from './components/play-mode-select/play-mode-select.component';
+import { WaitingRoomComponent } from './components/waiting-room/waiting-room.component';
+import { TimeoutRoomComponent } from './components/timeout-room/timeout-room.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +32,9 @@ import { DifficultySelectComponent } from './components/difficulty-select/diffic
     NameSelectComponent,
     HighScoresComponent,
     DifficultySelectComponent,
+    PlayModeSelectComponent,
+    WaitingRoomComponent,
+    TimeoutRoomComponent,
   ],
   imports: [
     BrowserModule,

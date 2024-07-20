@@ -4,7 +4,7 @@ import { BoardComponent } from '../board/board.component';
 import { ButtonComponent } from '../button/button.component';
 import { MatchComponent } from '../match/match.component';
 import { ChangeDetectionStrategy, DebugElement } from '@angular/core';
-import { Turn } from '../../turn';
+import { Turn } from '../../enums/turn';
 import { GameService } from '../../services/game.service';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -40,21 +40,44 @@ describe('GameComponent', () => {
   });
 
   it('should correctly calculate the turn message', () => {
-    component.playerOneName = 'Jon Snow';
-    component.playerTwoName = 'Arya Stark';
+    component.playerOneName = 'Davos Seaworth';
+    component.playerTwoName = 'Sansa Stark';
 
-    expect(component.calculateTurnMessage(Turn.playerOne, 2)).toBe('It\'s Jon Snow\'s turn!');
-    expect(component.calculateTurnMessage(Turn.playerTwo, 2)).toBe('It\'s Arya Stark\'s turn!');
-    expect(component.calculateTurnMessage(Turn.playerOne, 1)).toBe('It\'s your turn, Jon Snow!');
+    component.turn = Turn.playerOne;
+    component.numPlayers = 2;
+
+    expect(component.calculateTurnMessage()).toBe('It\'s Davos Seaworth\'s turn!');
+
+    component.turn = Turn.playerTwo;
+
+    expect(component.calculateTurnMessage()).toBe('It\'s Sansa Stark\'s turn!');
+
+    component.turn = Turn.playerOne;
+    component.numPlayers = 1;
+
+    expect(component.calculateTurnMessage()).toBe('It\'s your turn, Davos Seaworth!');
   });
 
   it('should correctly calculate the winner message', () => {
     component.playerOneName = 'Jim Hawkins';
     component.playerTwoName = 'Long John Silver';
 
-    expect(component.calculateWinnerMessage(Turn.playerOne, 2)).toBe('Long John Silver wins!');
-    expect(component.calculateWinnerMessage(Turn.playerTwo, 2)).toBe('Jim Hawkins wins!');
-    expect(component.calculateWinnerMessage(Turn.playerOne, 1)).toBe('You lose. Better luck next time!');
-    expect(component.calculateWinnerMessage(Turn.computer, 1)).toBe('You win. Congratulations!');
+    component.turn = Turn.playerOne;
+    component.numPlayers = 2;
+
+    expect(component.calculateWinnerMessage()).toBe('The winner is Long John Silver!');
+
+    component.turn = Turn.playerTwo;
+
+    expect(component.calculateWinnerMessage()).toBe('The winner is Jim Hawkins!');
+
+    component.turn = Turn.playerOne;
+    component.numPlayers = 1;
+
+    expect(component.calculateWinnerMessage()).toBe('You lose. Better luck next time!');
+
+    component.turn = Turn.computer;
+
+    expect(component.calculateWinnerMessage()).toBe('You win. Congratulations!');
   });
 });

@@ -8,8 +8,9 @@ export class NameService {
   private playerTwoName: string;
 
   constructor() {
-    this.playerOneName = 'Arthur'; // Default value
-    this.playerTwoName = 'Guinevere'; // Default value
+    // Default values
+    this.playerOneName = 'Arthur';
+    this.playerTwoName = 'Guinevere';
   }
 
   getPlayerOneName(): string {

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { GameService } from "../../services/game.service";
-import { Difficulty } from "../../difficulty";
+import { Difficulty } from "../../enums/difficulty";
 
 @Component({
   selector: 'app-difficulty-select',

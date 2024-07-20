@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Match } from '../../match';
+import { Match } from '../../interfaces/match';
 
 @Component({
   selector: 'app-match',

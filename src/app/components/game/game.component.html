@@ -1,6 +1,6 @@
 <app-board>
-  <h2 class="info-message turn-message" *ngIf="!gameEnded">{{ calculateTurnMessage(turn, numPlayers) }}</h2>
-  <h2 class="info-message winner-message" *ngIf="gameEnded">{{ calculateWinnerMessage(turn, numPlayers) }}</h2>
+  <h2 class="info-message turn-message" *ngIf="!gameEnded">{{ calculateTurnMessage() }}</h2>
+  <h2 class="info-message winner-message" *ngIf="gameEnded">{{ calculateWinnerMessage() }}</h2>
   <h3 class="warning" [ngClass]="moveIsInvalid ? 'visible' : 'invisible'">
     You can't remove all matches at once!
   </h3>
@@ -58,11 +58,13 @@
     </app-match>
   </div>
 
-  <app-button (click)="handleResetGame()"
+  <h2 *ngIf="restartButtonIsLoading">Loading...</h2>
+  <app-button *ngIf="showRestartButton()"
+              (click)="handleResetGame()"
               [buttonText]="gameEnded ? 'Play again!' : 'Restart'"
               buttonColour="blue">
   </app-button>
-  <app-button (click)="handleResetGame()"
+  <app-button (click)="handleQuitGame()"
               routerLink=""
               buttonText="Quit"
               buttonColour="red">
