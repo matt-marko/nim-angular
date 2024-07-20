@@ -9,6 +9,7 @@ import { HighScoresComponent } from './components/high-scores/high-scores.compon
 import { DifficultySelectComponent } from './components/difficulty-select/difficulty-select.component';
 import { PlayModeSelectComponent } from './components/play-mode-select/play-mode-select.component';
 import { WaitingRoomComponent } from './components/waiting-room/waiting-room.component';
+import { TimeoutRoomComponent } from './components/timeout-room/timeout-room.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'difficulty-select', component: DifficultySelectComponent },
   { path: 'play-mode-select', component: PlayModeSelectComponent },
   { path: 'waiting-room', component: WaitingRoomComponent },
+  { path: 'timeout-room', component: TimeoutRoomComponent },
 ];
 
 @NgModule({

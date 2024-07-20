@@ -49,18 +49,18 @@ export class WaitingRoomComponent {
     this.webSocketService.connectionMessages$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        // TODO add error after next?
         next: (socketMessage: WebSocketMessage) => {
           if (socketMessage.webSocketCode === MessageConstants.OPPONENT_NAME) {
+            const opponentName = socketMessage.message.replace(/%20/g, ' ');
+
             if (this.playMode === PlayMode.onlineCreator) {
-              this.nameService.setPlayerTwoName(socketMessage.message);
-              this.playerTwoName = socketMessage.message;
+              this.nameService.setPlayerTwoName(opponentName);
+              this.playerTwoName = opponentName;
               this.playerTwoJoined = true;
             } else if (this.playMode === PlayMode.onlineJoiner) {
-              this.nameService.setPlayerOneName(socketMessage.message);
-              this.playerOneName = socketMessage.message;
+              this.nameService.setPlayerOneName(opponentName);
+              this.playerOneName = opponentName;
             }
-            // TODO account for error not just closing
           } else if (socketMessage.webSocketCode === MessageConstants.USER_LEFT) {
             if (this.playMode === PlayMode.onlineCreator) {
               this.playerTwoJoined = false;
@@ -70,6 +70,11 @@ export class WaitingRoomComponent {
           } else if (socketMessage.webSocketCode === MessageConstants.GAME_STARTED) {
             this.router.navigate(['/game']);
           }
+        },
+        error: () => {
+          console.warn('The connection timed out');
+          this.webSocketService.disconnect();
+          this.router.navigate(['timeout-room']);
         }
     });
   } 
@@ -105,3 +110,4 @@ export class WaitingRoomComponent {
     this.router.navigate(['']);
   }
 }
+ 

@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlayModeSelectComponent } from './play-mode-select.component';
+import { TimeoutRoomComponent } from './timeout-room.component';
 import { BoardComponent } from '../board/board.component';
 import { ButtonComponent } from '../button/button.component';
 
-describe('PlayModeSelectComponent', () => {
-  let component: PlayModeSelectComponent;
-  let fixture: ComponentFixture<PlayModeSelectComponent>;
+describe('TimeoutRoomComponent', () => {
+  let component: TimeoutRoomComponent;
+  let fixture: ComponentFixture<TimeoutRoomComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        PlayModeSelectComponent,
+        TimeoutRoomComponent,
         BoardComponent,
         ButtonComponent,
       ]
     });
-    fixture = TestBed.createComponent(PlayModeSelectComponent);
+    fixture = TestBed.createComponent(TimeoutRoomComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

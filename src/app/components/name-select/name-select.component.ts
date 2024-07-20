@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NameService } from '../../services/name.service';
-import { NavigationStart, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
 import { PlayMode } from '../../enums/play-mode';
 import { MessageConstants, WebSocketService } from '../../services/web-socket.service';
-import { WebSocketMessage } from 'src/app/interfaces/WebSocketMessage';
+import { WebSocketMessage } from '../../interfaces/WebSocketMessage';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -29,12 +29,13 @@ export class NameSelectComponent {
   numPlayers: number = this.gameService.getNumPlayers();
   playMode: PlayMode = this.gameService.getPlayMode();
   gameCodeToJoin: string = '';
+  createdGameCode: string = '';
 
   isConnectionError: boolean = false;
   isLoading: boolean = false;
   gameNotFound: boolean = false;
-
-  connectionSuccess$ = this.webSocketService.connectionSuccess$;
+  gameFull: boolean = false;
+  hostHasSameName: boolean = false;
 
   destroy$ = new Subject<void>();
 
@@ -49,8 +50,7 @@ export class NameSelectComponent {
     private webSocketService: WebSocketService,
     private router: Router,
   ) { }
-
-  // TODO add condition when game full or name is same as host
+  
   ngOnInit(): void {
     if (this.playMode !== PlayMode.local) {
       this.webSocketService.connectionMessages$
@@ -59,8 +59,7 @@ export class NameSelectComponent {
         next: (socketMessage: WebSocketMessage) => {
           if (socketMessage.webSocketCode === MessageConstants.CONNECTION_OPENED) {
             if (this.playMode === PlayMode.onlineCreator) {
-              const gameCode: string = this.generateGameCode();
-              this.webSocketService.sendMessage(MessageConstants.CREATE_GAME + ' ' + gameCode);
+              this.webSocketService.sendMessage(MessageConstants.CREATE_GAME + ' ' + this.createdGameCode);
             } else if (this.playMode === PlayMode.onlineJoiner) {
               this.webSocketService.sendMessage(MessageConstants.JOIN_GAME + ' ' + this.gameCodeToJoin);
             }
@@ -74,25 +73,21 @@ export class NameSelectComponent {
             this.isLoading = false;
             this.gameNotFound = true;
             this.webSocketService.disconnect();
+          } else if (socketMessage.webSocketCode === MessageConstants.GAME_FULL) {
+            this.isLoading = false;
+            this.gameFull = true;
+            this.webSocketService.disconnect();
+          } else if (socketMessage.webSocketCode === MessageConstants.SAME_NAME) {
+            this.isLoading = false;
+            this.hostHasSameName = true;
+            this.webSocketService.disconnect();
           }
         },
-        error: (err) => {
-          console.error('There was an error connecting:', err);
+        error: () => {
+          console.error('There was an error connecting');
           this.isLoading = false;
           this.isConnectionError = true;
           this.webSocketService.disconnect();
-        }
-      });
-
-      // TODO check back button stuff
-      // might be able to do it in app.component.ts
-      // https://stackoverflow.com/questions/39132737/angular-2-how-to-detect-back-button-press-using-router-and-location-go
-      this.router.events.subscribe(event => {
-        if (event instanceof NavigationStart) {
-          // Handle the back button logic here
-          if (event.navigationTrigger === 'popstate') {
-            this.webSocketService.disconnect();
-          }
         }
       });
     }
@@ -158,13 +153,15 @@ export class NameSelectComponent {
 
       this.nameService.setPlayerOneName(this.gameForm.value.playerOneName);
 
-      const gameCode: string = this.generateGameCode();
+      this.createdGameCode = this.generateGameCode();
 
-      this.webSocketService.connect(this.nameService.getPlayerOneName(), gameCode);
+      this.webSocketService.connect(this.nameService.getPlayerOneName(), this.createdGameCode);
     } else if (this.playMode === PlayMode.onlineJoiner) {
       this.isConnectionError = false;
       this.isLoading = true;
       this.gameNotFound = false;
+      this.gameFull = false;
+      this.hostHasSameName = false;
 
       this.nameService.setPlayerTwoName(this.gameForm.value.playerOneName);
 
@@ -205,6 +202,11 @@ export class NameSelectComponent {
     }
 
     return 'Player one\'s name: ';
+  }
+
+  handleBackButtonClick(): void {
+    this.webSocketService.disconnect();
+    this.router.navigate(['/player-select']);
   }
 
   private generateGameCode(): string {

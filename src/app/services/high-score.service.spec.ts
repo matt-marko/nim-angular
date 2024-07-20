@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { HighScore } from '../high-score';
+import { HighScore } from '../interfaces/high-score';
 import { HighScoreService } from './high-score.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { HttpTestingController } from '@angular/common/http/testing';

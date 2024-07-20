@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Match } from '../interfaces/match';
 import { Turn } from '../enums/turn';
 import { Difficulty } from "../enums/difficulty";
 import { PlayMode } from '../enums/play-mode';
+import { MessageConstants, WebSocketService } from './web-socket.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,9 @@ export class GameService {
 
   private readonly numRows: number;
 
-  constructor() {
+  constructor(
+    private webSocketService: WebSocketService
+  ) {
     this.numPlayers = 0;
     this.turn = Turn.playerOne;
     this.gameEnded = false;
@@ -128,11 +131,50 @@ export class GameService {
   }
 
   handleMatchClick(clickedMatch: Match): void {
-    if (!this.gameEnded && !this.computerIsThinking) {
-      this.doPlayerMove(clickedMatch);
+    if (this.playMode === PlayMode.local) {
+      this.handleLocalMatchClick(clickedMatch);
+    } else {
+      this.handleOnlineMatchClick(clickedMatch);
+    }
+  }
 
-      if (this.matchesLeft() === 1) {
-        this.gameEnded = true;
+  resetGame(): void {
+    this.turn = Turn.playerOne;
+    this.gameEnded = false;
+    this.moveIsInvalid = false;
+    this.score = 0;
+    this.computerIsThinking = false;
+
+    for (let i = 0; i < this.numRows; i++) {
+      for (let j = 0; j <= 2 * i; j++) {
+        this.matches[i][j].isActive = true;
+      }
+    }
+
+    for (let i = 0; i < this.numRows; i++) {
+      for (let j = 0; j <= 2 * i; j++) {
+        this.matches[i][j].isHighlighted = false;
+      }
+    }
+  }
+
+  executeMove(clickedMatch: Match): void {
+    this.updateTurn();
+    this.removeMatches(clickedMatch);
+
+    if (this.matchesLeft() === 1) {
+      this.gameEnded = true;
+    }
+  }
+
+  private handleLocalMatchClick(clickedMatch: Match): void {
+    if (!this.gameEnded && !this.computerIsThinking && clickedMatch.isActive) {
+      if (this.matchesToRemove(clickedMatch) !== this.matchesLeft()) {
+        this.moveIsInvalid = false;
+        this.executeMove(clickedMatch);
+        this.score++;
+      } else {
+        this.moveIsInvalid = true;
       }
 
       if (this.turn === Turn.computer && !this.gameEnded) {
@@ -157,16 +199,33 @@ export class GameService {
     }
   }
 
+  private handleOnlineMatchClick(clickedMatch: Match): void {
+    if (
+      (this.turn === Turn.playerOne && this.playMode === PlayMode.onlineCreator) ||
+      (this.turn === Turn.playerTwo && this.playMode === PlayMode.onlineJoiner)
+    ) {
+      if (clickedMatch.isActive && !this.gameEnded) {
+        if (this.matchesToRemove(clickedMatch) !== this.matchesLeft()) {
+          this.moveIsInvalid = false;
+          this.webSocketService.sendMessage(`${MessageConstants.TURN} ${clickedMatch.row}-${clickedMatch.column}`);
+          this.executeMove(clickedMatch);
+        } else {
+          this.moveIsInvalid = true;
+        }
+      }
+    }
+  }
+
   /*
   * Make selectedMatch and all matches to the left of it inactive.
   */
-  removeMatches(selectedMatch: Match): void {
+ private removeMatches(selectedMatch: Match): void {
     for (let i = 0; i <= selectedMatch.column; i++) {
       this.matches[selectedMatch.row][i].isActive = false;
     }
   }
 
-  simulateComputerMove(): void {
+  private simulateComputerMove(): void {
     let selectedMatch: Match;
 
     if(this.getDifficulty() === Difficulty.easy) {
@@ -183,7 +242,7 @@ export class GameService {
   /*
   * Simulates a random move
   */
-  calculateEasyComputerMove(): Match {
+  private calculateEasyComputerMove(): Match {
     let validRows: number[] = [];
     let selectedMatch: Match;
     let selectedRow: number;
@@ -217,7 +276,7 @@ export class GameService {
   /*
   * Simulates an optimal move
   */
-  calculateImpossibleComputerMove(): Match {
+  private calculateImpossibleComputerMove(): Match {
     let nimSum: number = 0;
     let optimalMoveFound: boolean = false;
     let optimalMove: Match = this.getMatches()[0][0];
@@ -265,50 +324,6 @@ export class GameService {
     }
 
     return optimalMove;
-
-  }
-
-  private moveWouldLeaveOnlyRowsOfSizeOne(selectedMatch: Match): boolean {
-    const matchesThatWouldBeLeft = this.matchesLeftInRow(selectedMatch.row) - this.matchesToRemove(selectedMatch);
-
-    for (let row = 0; row < this.numRows; row++) {
-      if (row !== selectedMatch.row) {
-        if (this.matchesLeftInRow(row) >= 2) {
-          return false;
-        }
-      }
-
-      if (row === selectedMatch.row) {
-        if (matchesThatWouldBeLeft >= 2) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  }
-
-  private leaveOddNumberOfRowsOfSizeOne(): Match {
-    let matchToRemove: Match = this.getMatches()[0][0];
-    let rowsWithOneMatch: number = 0;
-
-    for (let row = 0; row < this.numRows; row++) {
-      if (this.matchesLeftInRow(row) === 1) {
-        rowsWithOneMatch++;
-      }
-    }
-
-    for (let row = 0; row < this.numRows; row++) {
-      if (this.matchesLeftInRow(row) > 1) {
-        matchToRemove = rowsWithOneMatch % 2 === 0 ?
-          this.getMatches()[row][(2 * row) - 1] :
-          this.getMatches()[row][2 * row];
-
-        break;
-      }
-    }
-
-    return matchToRemove;
   }
 
   /*
@@ -356,19 +371,47 @@ export class GameService {
     return activeMatches;
   }
 
-  resetGame(): void {
-    this.turn = Turn.playerOne;
-    this.gameEnded = false;
-    this.moveIsInvalid = false;
-    this.score = 0;
-    this.computerIsThinking = false;
-    this.gameCode = '';
+  private moveWouldLeaveOnlyRowsOfSizeOne(selectedMatch: Match): boolean {
+    const matchesThatWouldBeLeft = this.matchesLeftInRow(selectedMatch.row) - this.matchesToRemove(selectedMatch);
 
-    for (let i = 0; i < this.numRows; i++) {
-      for (let j = 0; j <= 2 * i; j++) {
-        this.matches[i][j].isActive = true;
+    for (let row = 0; row < this.numRows; row++) {
+      if (row !== selectedMatch.row) {
+        if (this.matchesLeftInRow(row) >= 2) {
+          return false;
+        }
+      }
+
+      if (row === selectedMatch.row) {
+        if (matchesThatWouldBeLeft >= 2) {
+          return false;
+        }
       }
     }
+
+    return true;
+  }
+
+  private leaveOddNumberOfRowsOfSizeOne(): Match {
+    let matchToRemove: Match = this.getMatches()[0][0];
+    let rowsWithOneMatch: number = 0;
+
+    for (let row = 0; row < this.numRows; row++) {
+      if (this.matchesLeftInRow(row) === 1) {
+        rowsWithOneMatch++;
+      }
+    }
+
+    for (let row = 0; row < this.numRows; row++) {
+      if (this.matchesLeftInRow(row) > 1) {
+        matchToRemove = rowsWithOneMatch % 2 === 0 ?
+          this.getMatches()[row][(2 * row) - 1] :
+          this.getMatches()[row][2 * row];
+
+        break;
+      }
+    }
+
+    return matchToRemove;
   }
 
   private simulateComputerThinking(resolve: Function, reject: Function): void {
@@ -414,27 +457,6 @@ export class GameService {
     }
 
     return nimSum;
-  }
-
-  /*
-  * Performs the logic related to a user clicking on the specified match
-  */
-  private doPlayerMove(clickedMatch: Match): void {
-    if (clickedMatch.isActive && this.getTurn() != Turn.computer) {
-      if (this.matchesToRemove(clickedMatch) !== this.matchesLeft()) {
-
-        this.moveIsInvalid = false;
-
-        this.updateTurn();
-
-        this.removeMatches(clickedMatch);
-
-        this.score++;
-
-      } else {
-        this.moveIsInvalid = true;
-      }
-    }
   }
 
   private updateTurn(): void {

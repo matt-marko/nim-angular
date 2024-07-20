@@ -17,6 +17,7 @@ import { HighScoresComponent } from './components/high-scores/high-scores.compon
 import { DifficultySelectComponent } from './components/difficulty-select/difficulty-select.component';
 import { PlayModeSelectComponent } from './components/play-mode-select/play-mode-select.component';
 import { WaitingRoomComponent } from './components/waiting-room/waiting-room.component';
+import { TimeoutRoomComponent } from './components/timeout-room/timeout-room.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { WaitingRoomComponent } from './components/waiting-room/waiting-room.com
     DifficultySelectComponent,
     PlayModeSelectComponent,
     WaitingRoomComponent,
+    TimeoutRoomComponent,
   ],
   imports: [
     BrowserModule,

@@ -60,6 +60,8 @@
   <h2 *ngIf="isConnectionError">An error occurred! Please try again later</h2>
   <h2 *ngIf="isLoading">Loading...</h2>
   <h2 *ngIf="gameNotFound">Game not found!</h2>
+  <h2 *ngIf="gameFull">This game is already full!</h2>
+  <h2 *ngIf="hostHasSameName">Change your name, the host of this game has already picked it!</h2>
 
   <div>
     <app-button *ngIf="!isLoading"
@@ -67,7 +69,7 @@
                 buttonColour="green"
                 (click)="onNameSelect()">
     </app-button>
-    <app-button routerLink="/player-select"
+    <app-button (click)="handleBackButtonClick()"
                 buttonText="Back"
                 buttonColour="blue">
     </app-button>

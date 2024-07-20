@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { HighScoreService } from '../../services/high-score.service';
-import { HighScore } from '../../high-score';
+import { HighScore } from '../../interfaces/high-score';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
