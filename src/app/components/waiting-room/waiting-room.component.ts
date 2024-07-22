@@ -69,12 +69,14 @@ export class WaitingRoomComponent {
             }
           } else if (socketMessage.webSocketCode === MessageConstants.GAME_STARTED) {
             this.router.navigate(['/game']);
+          } else if (socketMessage.webSocketCode === MessageConstants.CONNECTION_CLOSED) {
+            console.warn('The connection timed out');
+            this.webSocketService.disconnect();
+            this.router.navigate(['/timeout-room']);
           }
         },
         error: () => {
-          console.warn('The connection timed out');
           this.webSocketService.disconnect();
-          this.router.navigate(['timeout-room']);
         }
     });
   } 

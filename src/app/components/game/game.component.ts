@@ -76,12 +76,14 @@ export class GameComponent {
             } else if (socketMessage.webSocketCode === MessageConstants.GAME_RESTARTED) {
               this.restartButtonIsLoading = false;
               this.gameService.resetGame();
+            } else if (socketMessage.webSocketCode === MessageConstants.CONNECTION_CLOSED) {
+              console.warn('The connection timed out');
+              this.webSocketService.disconnect();
+              this.router.navigate(['/timeout-room']);
             }
           },
           error: () => {
-            console.warn('The connection timed out');
             this.webSocketService.disconnect();
-            this.router.navigate(['timeout-room']);
           }
       });
     }

@@ -61,8 +61,6 @@ export class WebSocketService {
         const webSocketCode: string = event.data.split(' ')[0];
         let message: string = event.data.split(' ')[1];
 
-        //message = message.replace(/%20/g, ' ');
-
         if (Object.values(MessageConstants).includes(webSocketCode)) {
           this.connectionMessagesSubject.next({
             webSocketCode,
@@ -78,7 +76,6 @@ export class WebSocketService {
   }
 
   sendMessage(message: string): void {
-    console.log(message)
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(message);
     } else {
