@@ -37,6 +37,9 @@ jobs:
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
 
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
       - name: Build Project
         run: npm run build
 
