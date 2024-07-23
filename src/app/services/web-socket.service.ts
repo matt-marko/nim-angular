@@ -20,6 +20,7 @@ export const MessageConstants = {
   TURN: 'TURN:',
   RESTART_GAME: 'RESTART-GAME:',
   GAME_RESTARTED: 'GAME-RESTARTED:',
+  PING: 'PING:',
 };
 
 @Injectable({
@@ -32,6 +33,11 @@ export class WebSocketService {
 
   private connectionMessagesSubject: Subject<WebSocketMessage> = new Subject<WebSocketMessage>();
   connectionMessages$: Observable<WebSocketMessage> = this.connectionMessagesSubject.asObservable();
+
+  private readonly PING_LIMIT: number = 5;
+
+  private pingIntervalId: number = 0;
+  private pingCounter: number = this.PING_LIMIT;
 
   constructor() {} 
 
@@ -47,6 +53,7 @@ export class WebSocketService {
       });
 
       console.error('An error occurred when connecting to the server.');
+      clearInterval(this.pingIntervalId);
     }    
 
     this.socket.onclose = () => {
@@ -54,6 +61,8 @@ export class WebSocketService {
         webSocketCode: MessageConstants.CONNECTION_CLOSED,
         message: 'close',
       });
+
+      clearInterval(this.pingIntervalId);
     }   
 
     this.socket.onmessage = (event: MessageEvent) => {
@@ -77,6 +86,7 @@ export class WebSocketService {
 
   sendMessage(message: string): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.pingServer();
       this.socket.send(message);
     } else {
       console.error('An error occurred when connecting to the server.');
@@ -85,5 +95,24 @@ export class WebSocketService {
 
   isConnected(): boolean {
     return this.socket?.readyState === 1;
+  }
+
+  // Heroku closes inactive connections after 30 seconds, so we must ping the server
+  // periodically to increase the timeout period. We ping the server once every 20 seconds
+  // five times if no messages are sent manually.
+  private pingServer(): void {
+    this.pingCounter = 0;
+
+    clearInterval(this.pingIntervalId);
+
+    this.pingIntervalId = setInterval(() => {
+      this.socket?.send(MessageConstants.PING);
+
+      this.pingCounter++;
+
+      if (this.pingCounter >= this.PING_LIMIT) {
+        clearInterval(this.pingIntervalId);
+      }
+    }, 20_000) as unknown as number;
   }
 }
