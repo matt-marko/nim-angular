@@ -8,9 +8,11 @@ Link to application: https://nim-angular.netlify.app/
 
 ## Information
 
-This app lets you play a game of [nim](https://en.wikipedia.org/wiki/Nim) either against a friend or the computer. After pressing play, choose "Two players" to take turns playing with a friend, or choose "One player" to play against the computer. If you win against the computer, you will be given a chance to save your score, which is the number of moves you made.
+This app lets you play a game of [nim](https://en.wikipedia.org/wiki/Nim) either against a friend or the computer. After pressing play, choose "Two players" to take turns playing with a friend either locally or online, or choose "One player" to play against the computer. If you win against the computer, you will be given a chance to save your score, which is the number of moves you made.
 
 When playing in one player mode, you can select one of two difficulties: easy and impossible. In easy mode, the computer makes random moves each time. In impossible mode, the computer makes the optimal move each time, making it impossible for the player to win.
+
+When playing in two player mode, the game can be played either locally, or online via the use of WebSockets. When playing online, the player creating the game will receive a 5 character game code and the player joining the game must enter this code to join the game. To save on hosting time, the connection will automatically close after two minutes of inactivity.
 
 The code also contains unit tests, written in [Jasmine](https://jasmine.github.io/). For more information about how to run unit tests, see [angular-readme.md](angular-readme.md)
 
