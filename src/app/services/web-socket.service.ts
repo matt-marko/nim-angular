@@ -86,7 +86,6 @@ export class WebSocketService {
 
   sendMessage(message: string): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.pingCounter = 0;
       this.pingServer();
       this.socket.send(message);
     } else {
@@ -102,13 +101,17 @@ export class WebSocketService {
   // periodically to increase the timeout period. We ping the server once every 20 seconds
   // five times if no messages are sent manually.
   private pingServer(): void {
-    setTimeout(() => {
+    this.pingCounter = 0;
+
+    clearInterval(this.pingIntervalId);
+
+    this.pingIntervalId = setInterval(() => {
       this.socket?.send(MessageConstants.PING);
       this.pingCounter++;
 
-      if (this.pingCounter < this.PING_LIMIT) {
-        this.pingServer();
+      if (this.pingCounter >= this.PING_LIMIT) {
+        clearInterval(this.pingIntervalId);
       }
-    }, 20_000);
+    }, 20_000) as unknown as number;
   }
 }
